@@ -6,13 +6,18 @@ import 'package:user_chat_app/bloc/sign_up/sign_up_status.dart';
 class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   SignUpBloc() : super(SignUpState()) {
     on<onSignUpBtnClicked>((event, emit) async {
-      Future.delayed(
-        Duration(seconds: 2),
+      emit(
+        state.copyWith(
+          status: const LoginLoadingStatus(),
+        ),
+      );
+      await Future.delayed(
+        const Duration(seconds: 3),
       );
 
       emit(
         state.copyWith(
-          status: LoginSuccessStatus("Success"),
+          status: const LoginSuccessStatus(),
         ),
       );
     });
