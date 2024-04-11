@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "12606355560",
+    "project_id": "messenger-clone-fltr",
+    "storage_bucket": "messenger-clone-fltr.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:12606355560:android:1999afb3131fd0af09a3dd",
+        "android_client_info": {
+          "package_name": "com.example.user_chat_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRUO-S5AMY5Y1C1GPPpt6IoZRIwyp-klM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
