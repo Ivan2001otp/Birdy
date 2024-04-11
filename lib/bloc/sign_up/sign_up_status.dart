@@ -15,8 +15,7 @@ class LoginSuccessStatus extends LoginProcessStatus {
 }
 
 class LoginFailureStatus extends LoginProcessStatus {
-  final String error;
-  final Exception exception;
+  final String exception;
 
-  const LoginFailureStatus(this.error, this.exception);
+  const LoginFailureStatus(this.exception);
 }

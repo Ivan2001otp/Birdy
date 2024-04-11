@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,6 +30,15 @@ class _SignUpState extends State<SignUp> {
     _signUpBloc = BlocProvider.of<SignUpBloc>(context);
 
     super.initState();
+
+    if (FirebaseAuth.instance.currentUser != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return const HomePage();
+        }),
+      );
+    }
   }
 
   @override

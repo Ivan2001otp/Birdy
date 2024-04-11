@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:user_chat_app/bloc/sign_up/sign_up_bloc.dart';
+import 'package:user_chat_app/view/home.dart';
 import 'package:user_chat_app/view/signup_page.dart';
 import 'firebase_options.dart';
 
