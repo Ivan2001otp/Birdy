@@ -7,18 +7,15 @@ class LoginInitialStatus extends LoginProcessStatus {
 }
 
 class LoginLoadingStatus extends LoginProcessStatus {
-  final String loadingMessage;
-  const LoginLoadingStatus(this.loadingMessage);
+  const LoginLoadingStatus();
 }
 
 class LoginSuccessStatus extends LoginProcessStatus {
-  final String message;
-  const LoginSuccessStatus(this.message);
+  const LoginSuccessStatus();
 }
 
 class LoginFailureStatus extends LoginProcessStatus {
-  final String error;
-  final Exception exception;
+  final String exception;
 
-  const LoginFailureStatus(this.error, this.exception);
+  const LoginFailureStatus(this.exception);
 }
