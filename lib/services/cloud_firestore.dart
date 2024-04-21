@@ -1,12 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:user_chat_app/Constants/dart_const.dart';
-
-import '../Models/UserInfo.dart';
+import '../Models/UserInfo.dart' as Us;
 
 class FirestoreCloud {
   FirebaseFirestore _cloudFireStore = FirebaseFirestore.instance;
 
-  Future<bool> saveLoggedInorSignedInUser(UserInfo user) async {
+  void logOutUser() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  Future<bool> saveLoggedInorSignedInUser(Us.UserInfo user) async {
     bool isSuccess = false;
     await _cloudFireStore
         .collection(SIGNED_USERS)
@@ -38,5 +42,21 @@ class FirestoreCloud {
         });
 
     return isError;
+  }
+
+  Future<List<Us.UserInfo>> fetchAllFriends() async {
+    bool isSuccess = false;
+    List<Us.UserInfo> response = List.empty(growable: true);
+
+    await _cloudFireStore
+        .collection(SIGNED_USERS)
+        .doc()
+        .snapshots()
+        .listen((event) {
+      Us.UserInfo obj = Us.UserInfo.fromJson(event.data());
+      response.add(obj);
+    });
+
+    return response;
   }
 }

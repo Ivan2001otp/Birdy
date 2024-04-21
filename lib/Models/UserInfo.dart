@@ -27,11 +27,11 @@ class UserInfo {
     };
   }
 
-  factory UserInfo.fromJson(Map<String, dynamic> json) {
+  factory UserInfo.fromJson(Map<String, dynamic>? json) {
     return UserInfo(
-      name: json['name'],
-      photoUrl: json['photoUrl'] ?? '',
-      uniqueId: json["uid"],
+      name: json?['Name']! ?? 'no name',
+      photoUrl: json?['photoUrl'] ?? 'no photo',
+      uniqueId: json?["Uid"],
     );
   }
 }

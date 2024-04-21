@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:user_chat_app/services/cloud_firestore.dart';
+import 'package:user_chat_app/view/signup_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,6 +31,13 @@ class _HomePageState extends State<HomePage> {
             PopupMenuButton<MenuValues>(onSelected: (selectedVal) {
               switch (selectedVal) {
                 case MenuValues.LogOut:
+                  FirestoreCloud().logOutUser();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignUp(),
+                    ),
+                  );
                   break;
 
                 case MenuValues.Profile:
@@ -59,11 +69,16 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
               _recentUserUpdate(),
+              _displayFriendList(context),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _displayFriendList(BuildContext context) {
+    return SizedBox();
   }
 
   Widget _recentUserUpdate() {
