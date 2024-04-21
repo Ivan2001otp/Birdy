@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,12 +33,14 @@ class _SignUpState extends State<SignUp> {
     super.initState();
 
     if (FirebaseAuth.instance.currentUser != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) {
-          return const HomePage();
-        }),
-      );
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) {
+            return const HomePage();
+          }),
+        );
+      });
     }
   }
 
@@ -88,7 +91,7 @@ class _SignUpState extends State<SignUp> {
 
   Widget _signUpForm(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4.sp),
+      padding: EdgeInsets.symmetric(horizontal: 12.sp),
       child: Column(
         children: [
           Text(
@@ -121,10 +124,16 @@ class _SignUpState extends State<SignUp> {
 
   Widget _signUpButton(BuildContext context) {
     return BlocConsumer<SignUpBloc, SignUpState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state.status is LoginFailureStatus) {
           displayErrorToast(context);
         } else if (state.status is LoginSuccessStatus) {
+          await Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) {
+              return const HomePage();
+            }),
+          );
           displaySuccessToast(context);
         }
       },
@@ -146,7 +155,7 @@ class _SignUpState extends State<SignUp> {
               borderRadius: BorderRadius.circular(12.r),
             ),
           ),
-          onPressed: () {
+          onPressed: () async {
             //hides the soft keyboard.
             FocusManager.instance.primaryFocus?.unfocus();
 
@@ -154,12 +163,6 @@ class _SignUpState extends State<SignUp> {
                 _usernameController!.text.isEmpty ||
                 _passController!.text.isEmpty) {
               context.read<SignUpBloc>().add(onSignUpBtnClicked());
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return const HomePage();
-                }),
-              );
             } else {
               displayErrorToast(context);
             }

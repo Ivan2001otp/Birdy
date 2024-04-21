@@ -1,8 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:user_chat_app/Constants/dart_const.dart';
 
+import '../Models/UserInfo.dart';
+
 class FirestoreCloud {
   FirebaseFirestore _cloudFireStore = FirebaseFirestore.instance;
+
+  Future<bool> saveLoggedInorSignedInUser(UserInfo user) async {
+    bool isSuccess = false;
+    await _cloudFireStore
+        .collection(SIGNED_USERS)
+        .doc(user.uniqueId)
+        .set(user.toJson())
+        .whenComplete(() => isSuccess = true)
+        .onError((error, stackTrace) => isSuccess = false);
+
+    return isSuccess;
+  }
 
   Future<bool> saveSignedUpUser(
       String name, String email, String password, String uid) async {
