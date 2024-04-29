@@ -4,27 +4,30 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:user_chat_app/bloc/sign_in/sign_in_event.dart';
+import 'package:user_chat_app/bloc/sign_in/sign_in_status.dart';
 import 'package:user_chat_app/bloc/sign_up/sign_up_bloc.dart';
 import 'package:user_chat_app/bloc/sign_up/sign_up_event.dart';
 import 'package:user_chat_app/bloc/sign_up/sign_up_state.dart';
 import 'package:user_chat_app/bloc/sign_up/sign_up_status.dart';
 import 'package:user_chat_app/view/home.dart';
-import 'package:user_chat_app/view/signin_page.dart';
 
-class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+import '../bloc/sign_in/sign_in_bloc.dart';
+import '../bloc/sign_in/sign_in_state.dart';
+
+class SignIn extends StatefulWidget {
+  const SignIn({super.key});
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<SignIn> createState() => _SignInState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _SignInState extends State<SignIn> {
   late SignUpBloc _signUpBloc;
-  TextEditingController? _usernameController = TextEditingController();
   TextEditingController? _usermailController = TextEditingController();
   TextEditingController? _passController = TextEditingController();
   bool isProtected = true;
-  final _signUpFormKey = GlobalKey<FormState>();
+  final _signInFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -32,7 +35,7 @@ class _SignUpState extends State<SignUp> {
     _signUpBloc = BlocProvider.of<SignUpBloc>(context);
 
     super.initState();
-/*
+
     if (FirebaseAuth.instance.currentUser != null) {
       SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
         Navigator.pushReplacement(
@@ -42,7 +45,7 @@ class _SignUpState extends State<SignUp> {
           }),
         );
       });
-    }*/
+    }
   }
 
   @override
@@ -52,14 +55,13 @@ class _SignUpState extends State<SignUp> {
     _signUpBloc.close();
 
     _usermailController?.clear();
-    _usernameController?.clear();
     _passController?.clear();
   }
 
   void displayErrorToast(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("Failed login"),
+        content: Text("Failed to Sign In"),
         duration: Duration(seconds: 2),
         backgroundColor: Colors.red,
       ),
@@ -69,7 +71,7 @@ class _SignUpState extends State<SignUp> {
   void displaySuccessToast(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("Success login"),
+        content: Text("Success Sign In"),
         duration: Duration(seconds: 2),
         backgroundColor: Colors.green,
       ),
@@ -84,7 +86,7 @@ class _SignUpState extends State<SignUp> {
         elevation: 0.sp,
       ),
       body: Form(
-        key: _signUpFormKey,
+        key: _signInFormKey,
         child: _signUpForm(context),
       ),
     );
@@ -96,7 +98,7 @@ class _SignUpState extends State<SignUp> {
       child: Column(
         children: [
           Text(
-            'Sign Up Page',
+            'Sign In Page',
             style: TextStyle(
               fontSize: 30.sp,
               color: Colors.black,
@@ -104,10 +106,6 @@ class _SignUpState extends State<SignUp> {
           ),
           SizedBox(
             height: 40.h,
-          ),
-          _usernameField(),
-          SizedBox(
-            height: 10.h,
           ),
           _emailField(),
           SizedBox(
@@ -119,18 +117,12 @@ class _SignUpState extends State<SignUp> {
           ),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             TextButton.icon(
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) {
-                    return const SignIn();
-                  }),
-                );
-              },
+              onPressed: () {},
               icon: Icon(
                 Icons.login,
                 color: Colors.black,
               ),
-              label: Text('Sign In Here..'),
+              label: Text('Sign Up Here..'),
             ),
           ]),
           _signUpButton(context),
@@ -140,11 +132,11 @@ class _SignUpState extends State<SignUp> {
   }
 
   Widget _signUpButton(BuildContext context) {
-    return BlocConsumer<SignUpBloc, SignUpState>(
+    return BlocConsumer<SignInBloc, SignInState>(
       listener: (context, state) async {
-        if (state.status is LoginFailureStatus) {
+        if (state.status is SignInFailureStatus) {
           displayErrorToast(context);
-        } else if (state.status is LoginSuccessStatus) {
+        } else if (state.status is SignInSuccessStatus) {
           await Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) {
@@ -157,10 +149,10 @@ class _SignUpState extends State<SignUp> {
       builder: (context, state) {
         print('the state is ${state.status.toString()}');
 
-        if (state.status is LoginLoadingStatus) {
+        if (state.status is SignInLoadingStatus) {
           return const Center(
             child: CircularProgressIndicator(
-              color: Colors.red,
+              color: Colors.green,
             ),
           );
         }
@@ -177,15 +169,14 @@ class _SignUpState extends State<SignUp> {
             FocusManager.instance.primaryFocus?.unfocus();
 
             if (_usermailController!.text.isEmpty ||
-                _usernameController!.text.isEmpty ||
                 _passController!.text.isEmpty) {
-              context.read<SignUpBloc>().add(onSignUpBtnClicked());
+              context.read<SignInBloc>().add(OnSignInBtnClicked());
             } else {
               displayErrorToast(context);
             }
           },
           child: Text(
-            'Sign Up',
+            'Sign In',
             style: TextStyle(color: Colors.white),
           ),
         );
@@ -194,15 +185,16 @@ class _SignUpState extends State<SignUp> {
   }
 
   Widget _passwordField() {
-    return BlocBuilder<SignUpBloc, SignUpState>(builder: (context, state) {
+    return BlocBuilder<SignInBloc, SignInState>(builder: (context, state) {
       return TextFormField(
         keyboardType: TextInputType.text,
         style: const TextStyle(color: Colors.black87),
         validator: (password) {
-          print('log-validatin password $password');
+          print('log-validation password $password');
         },
         onChanged: (password) {
-          context.read<SignUpBloc>().add(onUserPasswordChange(password));
+          debugPrint('Password is $password');
+          context.read<SignInBloc>().add(OnUserPasswordChanged(password));
         },
         decoration: const InputDecoration(
           icon: Icon(Icons.security),
@@ -213,7 +205,7 @@ class _SignUpState extends State<SignUp> {
   }
 
   Widget _emailField() {
-    return BlocBuilder<SignUpBloc, SignUpState>(builder: (context, state) {
+    return BlocBuilder<SignInBloc, SignInState>(builder: (context, state) {
       return TextFormField(
         keyboardType: TextInputType.emailAddress,
         style: const TextStyle(color: Colors.black87),
@@ -222,31 +214,11 @@ class _SignUpState extends State<SignUp> {
         },
         onChanged: (email) {
           print("log-email changed $email");
-          context.read<SignUpBloc>().add(onUserEmailChange(email));
+          context.read<SignInBloc>().add(OnUseremailChanged(email));
         },
         decoration: const InputDecoration(
           icon: Icon(Icons.email),
           hintText: 'abc@gmail.com',
-        ),
-      );
-    });
-  }
-
-  Widget _usernameField() {
-    return BlocBuilder<SignUpBloc, SignUpState>(builder: (context, state) {
-      return TextFormField(
-        keyboardType: TextInputType.name,
-        style: const TextStyle(color: Colors.black87),
-        validator: (userName) {
-          print("log-validating $userName");
-        },
-        onChanged: (userName) {
-          print("log-changed $userName");
-          context.read<SignUpBloc>().add(onUserNameChange(userName));
-        },
-        decoration: const InputDecoration(
-          icon: Icon(Icons.person),
-          hintText: 'UserName',
         ),
       );
     });

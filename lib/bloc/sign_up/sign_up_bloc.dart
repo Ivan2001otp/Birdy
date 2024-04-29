@@ -27,7 +27,10 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
             state.usermail, state.password, userCredential.user!.uid);
 
         Us.UserInfo userInfo = Us.UserInfo(
-            name: state.username, uniqueId: userCredential.user!.uid);
+          name: state.username,
+          uniqueId: userCredential.user!.uid,
+          email: state.usermail,
+        );
         //write in cloudfirestore to save the user...
         await _firestoreCloudService.saveLoggedInorSignedInUser(userInfo);
 
