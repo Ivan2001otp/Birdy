@@ -9,6 +9,7 @@ import 'package:user_chat_app/bloc/home_bloc/home_state.dart';
 import 'package:user_chat_app/services/cloud_firestore.dart';
 import 'package:user_chat_app/view/signup_page.dart';
 import 'package:user_chat_app/Models/UserInfo.dart' as Us;
+import 'package:user_chat_app/widgets/resuable/custom_card.dart';
 
 import '../bloc/home_bloc/home_event.dart';
 
@@ -45,6 +46,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        /*
         appBar: AppBar(
           elevation: 0.sp,
           backgroundColor: Colors.transparent,
@@ -85,6 +87,7 @@ class _HomePageState extends State<HomePage> {
             })
           ],
         ),
+       */
         body: Padding(
           padding: EdgeInsets.zero,
           child: Column(
@@ -131,33 +134,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _chatWidgetHolder(List<Us.UserInfo> friendList, BuildContext ctx) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemBuilder: (context, index) {
-        if (myUserID == friendList[index].uniqueId) {
-          return SizedBox.shrink();
-        }
-        return Column(
-          children: [
-            ListTile(
-              title: Text(friendList[index].name ?? 'no Name'),
-              subtitle: Text(
-                friendList[index].uniqueId,
-                style: const TextStyle(
-                  overflow: TextOverflow.fade,
-                ),
-              ),
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          if (myUserID == friendList[index].uniqueId) {
+            return SizedBox.shrink();
+          }
+          return InkWell(
+            onTap: () {},
+            child: Column(
+              children: [
+                CustomCardView(friendName: friendList[index].name),
+                const Divider(
+                  indent: 10.0,
+                  endIndent: 10.0,
+                  color: Color.fromARGB(255, 228, 221, 221),
+                  thickness: 2.0,
+                )
+              ],
             ),
-            const Divider(
-              indent: 10.0,
-              endIndent: 10.0,
-              color: Colors.grey,
-              thickness: 2.0,
-            )
-          ],
-        );
-      },
-      itemCount: friendList.length,
+          );
+        },
+        itemCount: friendList.length,
+      ),
     );
   }
 
@@ -189,45 +190,87 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 14.sp, vertical: 8.sp),
-                child: Text('Recent Update')),
+              padding: EdgeInsets.symmetric(horizontal: 14.sp, vertical: 8.sp),
+              child: Text(
+                'Recent Snap',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                ),
+              ),
+            ),
           ],
         ),
         SizedBox(
           height: 85.sp,
-          child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: 8,
-              padding: EdgeInsets.symmetric(horizontal: 8.sp),
-              physics: AlwaysScrollableScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+          child: Row(children: [
+            Expanded(
+              flex: 3,
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 1.h,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.deepPurple,
+                      radius: 28.sp,
+                      child: Icon(
+                        Icons.person_4_rounded,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 16.sp,
+                    bottom: 26.sp,
+                    child: InkWell(
+                      onTap: () {},
+                      child: Icon(
+                        Icons.add_box_rounded,
+                        size: 22.sp,
+                        color: Colors.black,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 12,
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: 8,
+                  physics: AlwaysScrollableScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    return Row(
                       children: [
-                        CircleAvatar(
-                          radius: 24.sp,
-                          child: Icon(
-                            Icons.person_2_outlined,
-                            size: 18.sp,
-                            color: Colors.black,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Color.fromARGB(255, 13, 26, 37),
+                              radius: 24.sp,
+                              child: Icon(
+                                Icons.person_2_outlined,
+                                size: 18.sp,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 4.sp,
+                            ),
+                            Text(
+                              'Name',
+                            ),
+                          ],
                         ),
                         SizedBox(
-                          height: 4.sp,
+                          width: 8.sp,
                         ),
-                        Text('Name'),
                       ],
-                    ),
-                    SizedBox(
-                      width: 8.sp,
-                    ),
-                  ],
-                );
-              }),
+                    );
+                  }),
+            ),
+          ]),
         )
       ],
     );
