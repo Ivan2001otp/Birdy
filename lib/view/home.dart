@@ -2,9 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:user_chat_app/bloc/home_bloc/bloc_home.dart';
+import 'package:user_chat_app/bloc/home_bloc/home_state.dart';
 import 'package:user_chat_app/services/cloud_firestore.dart';
 import 'package:user_chat_app/view/signup_page.dart';
+import 'package:user_chat_app/Models/UserInfo.dart' as Us;
+
+import '../bloc/home_bloc/home_event.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,6 +26,21 @@ enum MenuValues {
 }
 
 class _HomePageState extends State<HomePage> {
+  late String myUserID;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    myUserID = FirebaseAuth.instance.currentUser?.uid ?? 'no ID';
+    debugPrint(myUserID);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeBloc>().add(const onLoadChatEvent());
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -69,6 +90,13 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
               _recentUserUpdate(),
+              const Divider(
+                thickness: 4.0,
+                height: 0.0,
+                indent: 10,
+                endIndent: 10,
+                color: Colors.black,
+              ),
               _displayFriendList(context),
             ],
           ),
@@ -78,7 +106,79 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _displayFriendList(BuildContext context) {
-    return SizedBox();
+    return BlocConsumer<HomeBloc, HomeState>(builder: (context, state) {
+      if (state is HomeLoading) {
+        return Container(
+          margin: EdgeInsets.symmetric(
+              vertical: MediaQuery.of(context).size.height * 0.30),
+          child: const CircularProgressIndicator(
+            color: Colors.red,
+          ),
+        );
+      } else if (state is HomeSuccessStatus) {
+        return _chatWidgetHolder(state.resultList, context);
+      }
+      return const Center(
+        child: Text('Something went wrong'),
+      );
+    }, listener: (context, state) {
+      if (state is HomeFailureStatus) {
+        displayErrorToast(context);
+      } else if (state is HomeSuccessStatus) {
+        displaySuccessToast(context);
+      }
+    });
+  }
+
+  Widget _chatWidgetHolder(List<Us.UserInfo> friendList, BuildContext ctx) {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+        if (myUserID == friendList[index].uniqueId) {
+          return SizedBox.shrink();
+        }
+        return Column(
+          children: [
+            ListTile(
+              title: Text(friendList[index].name ?? 'no Name'),
+              subtitle: Text(
+                friendList[index].uniqueId,
+                style: const TextStyle(
+                  overflow: TextOverflow.fade,
+                ),
+              ),
+            ),
+            const Divider(
+              indent: 10.0,
+              endIndent: 10.0,
+              color: Colors.grey,
+              thickness: 2.0,
+            )
+          ],
+        );
+      },
+      itemCount: friendList.length,
+    );
+  }
+
+  void displayErrorToast(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Failed to load chats.."),
+        duration: Duration(seconds: 4),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void displaySuccessToast(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("You're all set.."),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   Widget _recentUserUpdate() {
@@ -95,7 +195,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         SizedBox(
-          height: 500.sp,
+          height: 85.sp,
           child: ListView.builder(
               shrinkWrap: true,
               itemCount: 8,

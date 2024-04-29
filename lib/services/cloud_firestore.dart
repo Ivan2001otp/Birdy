@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:user_chat_app/Constants/dart_const.dart';
 import '../Models/UserInfo.dart' as Us;
 
@@ -48,13 +49,22 @@ class FirestoreCloud {
     bool isSuccess = false;
     List<Us.UserInfo> response = List.empty(growable: true);
 
-    await _cloudFireStore
-        .collection(SIGNED_USERS)
-        .doc()
-        .snapshots()
-        .listen((event) {
-      Us.UserInfo obj = Us.UserInfo.fromJson(event.data());
-      response.add(obj);
+    CollectionReference reference =
+        _cloudFireStore.collection(SIGN_UP_USERS_DOCS);
+
+    QuerySnapshot querySnapshot = await reference.get();
+
+    querySnapshot.docs.forEach((item) {
+      Map<String, dynamic>? mp = item.data() as Map<String, dynamic>?;
+
+      if (mp != null) {
+        debugPrint('${mp['Name']}');
+        debugPrint(mp['Email']);
+        debugPrint(mp['Uid']);
+      }
+
+      Us.UserInfo user = Us.UserInfo.fromJson(mp);
+      response.add(user);
     });
 
     return response;
